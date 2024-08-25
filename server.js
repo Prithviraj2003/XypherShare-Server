@@ -19,10 +19,10 @@ const wss = new WebSocket.Server({ noServer: true });
 
 // Handle WebSocket connection
 wss.on("connection", (ws) => {
-  console.log("WebSocket connection established");
+  //console.log("WebSocket connection established");
   // Handle incoming messages
   ws.on("message", (message) => {
-    console.log(`Received message: ${message}`);
+    //console.log(`Received message: ${message}`);
     const data = JSON.parse(message);
     switch (data.event) {
       case "HEARTBEAT":
@@ -39,7 +39,7 @@ wss.on("connection", (ws) => {
         addShareCode(ws, shareCode);
         break;
       case "CONNECTION_REQUEST":
-        console.log("Connection Request", parseInt(data.destination));
+        //console.log("Connection Request", parseInt(data.destination));
         const wsCode = addConnection(ws);
         let receiverWs = getWsByShareCode(parseInt(data.destination));
         setTimeout(() => {
@@ -68,7 +68,7 @@ wss.on("connection", (ws) => {
 
         break;
       case "CONNECTION_ACCEPT":
-        console.log("Connection Accept", data.destination);
+        //console.log("Connection Accept", data.destination);
         const receiverConnection = getWsByOriginCode(data.destination);
         const wscodes = addConnection(ws);
         if (receiverConnection) {
@@ -82,7 +82,7 @@ wss.on("connection", (ws) => {
         }
         break;
       default:
-        console.log(data.event, data.data);
+        //console.log(data.event, data.data);
         const receiveConnn = getWsByOriginCode(data.destination);
         if (receiveConnn) {
           receiveConnn.ws.send(
@@ -104,7 +104,7 @@ wss.on("connection", (ws) => {
 
 // Create an HTTP server
 const server = app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  //console.log(`Server is running on port ${port}`);
 });
 
 // Upgrade HTTP server to WebSocket server
