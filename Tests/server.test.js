@@ -95,7 +95,7 @@ describe("Websocket server Full Flow", () => {
       const data = JSON.parse(message);
       if (data.event === "CONNECTION_ACCEPT") {
         expect(data.data.success).toBe(true);
-        console.log("data:", data);
+        //console.log("data:", data);
         done();
       }
     });
