@@ -1,49 +1,22 @@
 const e = require("express");
 const express = require("express");
 const WebSocket = require("ws");
-
+const {
+  GenerateShareCode,
+  generateOriginCode,
+  addConnection,
+  getWsByOriginCode,
+  addShareCode,
+  removeShareCode,
+  removeConnection,
+  getWsByShareCode,
+} = require("./functions");
 const app = express();
 const port = 8888;
 
 // Create a WebSocket server
 const wss = new WebSocket.Server({ noServer: true });
 
-const GenerateShareCode = () => {
-  return Math.floor(10000 + Math.random() * 90000);
-};
-generateOriginCode = () => {
-  return Math.random().toString(36).substr(2, 8);
-};
-let shareCodes = [];
-let connections = [];
-
-const addConnection = (ws) => {
-  if (connections.includes(ws)) return;
-  const wsCode = generateOriginCode();
-  connections.push({ wsCode, ws });
-  return wsCode;
-};
-
-const removeConnection = (ws) => {
-  connections = connections.filter((connection) => connection.ws !== ws);
-};
-
-const getWsByOriginCode = (wsCode) => {
-  return connections.find((connection) => connection.wsCode === wsCode);
-};
-
-console.log("Share Code", shareCodes);
-const addShareCode = (ws, shareCode) => {
-  console.log("Add Share Code", shareCode);
-  shareCodes.push({ ws, shareCode });
-};
-
-const removeShareCode = (ws) => {
-  shareCodes = shareCodes.filter((code) => code.ws !== ws);
-};
-const getWsByShareCode = (shareCode) => {
-  return shareCodes.find((code) => code.shareCode === shareCode);
-};
 // Handle WebSocket connection
 wss.on("connection", (ws) => {
   console.log("WebSocket connection established");
@@ -71,16 +44,16 @@ wss.on("connection", (ws) => {
         let receiverWs = getWsByShareCode(parseInt(data.destination));
         setTimeout(() => {
           if (receiverWs) {
-            receiverWs.ws.send(
-              JSON.stringify({
-                event: "CONNECTION_REQUEST",
-                origin: wsCode,
-              })
-            );
             ws.send(
               JSON.stringify({
                 event: "CONNECTION_REQUEST",
                 data: { AssignedOriginCOde: wsCode, success: true },
+              })
+            );
+            receiverWs.ws.send(
+              JSON.stringify({
+                event: "CONNECTION_REQUEST",
+                origin: wsCode,
               })
             );
           } else {
@@ -124,8 +97,8 @@ wss.on("connection", (ws) => {
   });
   // Handle WebSocket close event
   ws.on("close", () => {
-    console.log("WebSocket connection closed");
     removeShareCode(ws);
+    removeConnection(ws);
   });
 });
 
@@ -140,3 +113,5 @@ server.on("upgrade", (request, socket, head) => {
     wss.emit("connection", ws, request);
   });
 });
+
+module.exports = server;
