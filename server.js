@@ -13,7 +13,8 @@ const {
 } = require("./functions");
 const app = express();
 const port = 8889;
-
+const cors = require("cors");
+app.use(cors());
 let NoOfVisitors = 0;
 let NoOfFilesTransfered = 0;
 // Create a WebSocket server
