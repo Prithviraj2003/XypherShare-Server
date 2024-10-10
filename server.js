@@ -12,8 +12,10 @@ const {
   getWsByShareCode,
 } = require("./functions");
 const app = express();
-const port = 8888;
+const port = 8889;
 
+let NoOfVisitors = 0;
+let NoOfFilesTransfered = 0;
 // Create a WebSocket server
 const wss = new WebSocket.Server({ noServer: true });
 
@@ -79,6 +81,7 @@ wss.on("connection", (ws) => {
               data: { success: true, files: data.data.files },
             })
           );
+          NoOfFilesTransfered += data.data.files.length;
         }
         break;
       default:
@@ -102,9 +105,16 @@ wss.on("connection", (ws) => {
   });
 });
 
+app.put("/visit", (req, res) => {
+  NoOfVisitors++;
+  res.json({ NoOfVisitors });
+});
+app.get("/visit", (req, res) => {
+  res.json({ NoOfVisitors, NoOfFilesTransfered });
+});
 // Create an HTTP server
 const server = app.listen(port, () => {
-  //console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
 
 // Upgrade HTTP server to WebSocket server
